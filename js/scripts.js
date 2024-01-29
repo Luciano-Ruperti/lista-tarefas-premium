@@ -11,197 +11,186 @@ const filterBtn = document.querySelector("#filter-select");
 
 let oldInputValue;
 
-
+/*loadTodos();*/
 
 // Funções
-const saveTodo = (text, done = 0, save = 1) => {    
+const saveTodo = (text, done = 0, save = 1) => {
+  const todo = document.createElement("div");
+  todo.classList.add("todo");
 
-    const todo = document.createElement("div");
-    todo.classList.add("todo");
+  const todoTitle = document.createElement("h3");
+  todoTitle.innerText = text;
+  todo.appendChild(todoTitle);
 
-    const todoTitle = document.createElement("h3");
-    todoTitle.innerText = text;
-    todo.appendChild(todoTitle);
+  const doneBtn = document.createElement("button");
+  doneBtn.classList.add("finish-todo");
+  doneBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
+  todo.appendChild(doneBtn);
 
-    const doneBtn = document.createElement("button");
-    doneBtn.classList.add("finish-todo");
-    doneBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
-    todo.appendChild(doneBtn);
+  const editBtn = document.createElement("button");
+  editBtn.classList.add("edit-todo");
+  editBtn.innerHTML = '<i class="fa-solid fa-pen"></i>';
+  todo.appendChild(editBtn);
 
-    const editBtn = document.createElement("button");
-    editBtn.classList.add("edit-todo");
-    editBtn.innerHTML = '<i class="fa-solid fa-pen"></i>';
-    todo.appendChild(editBtn);
+  const deleteBtn = document.createElement("button");
+  deleteBtn.classList.add("remove-todo");
+  deleteBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+  todo.appendChild(deleteBtn);
 
-    const deleteBtn = document.createElement("button");
-    deleteBtn.classList.add("remove-todo");
-    deleteBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
-    todo.appendChild(deleteBtn);
+  // Utilizando dados da Losal Storage
+  if (done) {
+    todo.classList.add("done");
+  }
 
-    // Utilizando dados da Losal Storage
-    if (done) {
-        todo.classList.add("done");
-    }
+  if (save) {
+    saveTodoLocalStorage({ text, done });
+  }
 
-    if (save) {
-        saveTodoLocalStorage({text, done})
-    }
+  todoList.appendChild(todo);
 
-    todoList.appendChild(todo);
+  todoInput.value = "";
 
-    todoInput.value = "";
-
-    todoInput.focus();
+  todoInput.focus();
 };
 
 const toggleForms = () => {
-    editForm.classList.toggle("hide");
-    todoForm.classList.toggle("hide");
-    todoList.classList.toggle("hide");
+  editForm.classList.toggle("hide");
+  todoForm.classList.toggle("hide");
+  todoList.classList.toggle("hide");
 };
 
 const updateTodo = (text) => {
+  const todos = document.querySelectorAll(".todo");
 
-    const todos = document.querySelectorAll(".todo");
+  todos.forEach((todo) => {
+    let todoTitle = todo.querySelector("h3");
 
-    todos.forEach((todo) => {
-        let todoTitle = todo.querySelector("h3");
+    if (todoTitle.innerText === oldInputValue) {
+      todoTitle.innerText = text;
 
-        if (todoTitle.innerText === oldInputValue) {
-            todoTitle.innerText = text;
-
-            updateTodoLocalStorage(oldInputValue, text);
-        }
-    });
+      updateTodoLocalStorage(oldInputValue, text);
+    }
+  });
 };
 
 const getSearchedTodos = (search) => {
+  const todos = document.querySelectorAll(".todo");
 
-    const todos = document.querySelectorAll(".todo");
+  todos.forEach((todo) => {
+    let todoTitle = todo.querySelector("h3").innerText.toLowerCase();
 
-    todos.forEach((todo) => {
-        let todoTitle = todo.querySelector("h3").innerText.toLowerCase();
+    const normalizedSearch = search.toLowerCase();
 
-        const normalizedSearch = search.toLowerCase();
+    todo.style.display = "flex";
 
-        todo.style.display = "flex";
-
-        if (!todoTitle.includes(normalizedSearch)) {
-            todo.style.display = "none";
-        }
-    });
-
+    if (!todoTitle.includes(normalizedSearch)) {
+      todo.style.display = "none";
+    }
+  });
 };
 
 const filterTodos = (filterValue) => {
+  const todos = document.querySelectorAll(".todo");
 
-    const todos = document.querySelectorAll(".todo");
-
-    switch(filterValue) {
-        case "all":
-            todos.forEach((todo) => (todo.style.display = "flex"));
-            break;
-        case "done":
-            todos.forEach((todo) => 
-            todo.classList.contains("done")
-              ? (todo.style.display = "flex")
-              : (todo.style.display = "none")
-
-            );
-            break;
-         case "todo":
-            todos.forEach((todo) => 
-            !todo.classList.contains("done")
-                ? (todo.style.display = "flex")
-                : (todo.style.display = "none")
-    
-            );
-            break;
-        default:
-            break;
-    }
+  switch (filterValue) {
+    case "all":
+      todos.forEach((todo) => (todo.style.display = "flex"));
+      break;
+    case "done":
+      todos.forEach((todo) =>
+        todo.classList.contains("done")
+          ? (todo.style.display = "flex")
+          : (todo.style.display = "none")
+      );
+      break;
+    case "todo":
+      todos.forEach((todo) =>
+        !todo.classList.contains("done")
+          ? (todo.style.display = "flex")
+          : (todo.style.display = "none")
+      );
+      break;
+    default:
+      break;
+  }
 };
 
 // Eventos
 todoForm.addEventListener("submit", (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    const inputValue = todoInput.value;
+  const inputValue = todoInput.value;
 
-    if (inputValue) {
-        saveTodo(inputValue);
-    }
+  if (inputValue) {
+    saveTodo(inputValue);
+  }
 });
 
 document.addEventListener("click", (e) => {
-    const targetEl = e.target;
-    const parentEl = targetEl.closest("div");
-    let todoTitle;
+  const targetEl = e.target;
+  const parentEl = targetEl.closest("div");
+  let todoTitle;
 
-    if (parentEl && parentEl.querySelector("h3")) {
-        todoTitle = parentEl.querySelector("h3").innerText; /* diferente aqui */
-    }
+  if (parentEl && parentEl.querySelector("h3")) {
+    todoTitle = parentEl.querySelector("h3").innerText; /* diferente aqui */
+  }
 
-    if (targetEl.classList.contains("finish-todo")) {
-        parentEl.classList.toggle("done");
+  if (targetEl.classList.contains("finish-todo")) {
+    parentEl.classList.toggle("done");
 
-        updateTodoStatusLocalStorage(todoTitle);
-    }
+    updateTodoStatusLocalStorage(todoTitle);
+  }
 
-    if (targetEl.classList.contains("remove-todo")) {
-        parentEl.remove();
+  if (targetEl.classList.contains("remove-todo")) {
+    parentEl.remove();
 
-        removeTodoLocalStorage(todoTitle);
-    }
+    removeTodoLocalStorage(todoTitle);
+  }
 
-    if (targetEl.classList.contains("edit-todo")) {
-        toggleForms();
+  if (targetEl.classList.contains("edit-todo")) {
+    toggleForms();
 
-        editInput.value = todoTitle;
-        oldInputValue = todoTitle;
-    }
+    editInput.value = todoTitle;
+    oldInputValue = todoTitle;
+  }
 });
 
 cancelEditBtn.addEventListener("click", (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    toggleForms();
+  toggleForms();
 });
 
 editForm.addEventListener("submit", (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    const editInputValue = editInput.value;
+  const editInputValue = editInput.value;
 
-    if (editInputValue) {
-        updateTodo(editInputValue)
-    }
+  if (editInputValue) {
+    updateTodo(editInputValue);
+  }
 
-    toggleForms();
+  toggleForms();
 });
 
 searchInput.addEventListener("keyup", (e) => {
-    const search = e.target.value;
+  const search = e.target.value;
 
-    getSearchedTodos(search);
+  getSearchedTodos(search);
 });
 
 eraseBtn.addEventListener("click", (e) => {
+  e.preventDefault();
 
-    e.preventDefault();
+  searchInput.value = "";
 
-    searchInput.value = "";
-
-    searchInput.dispatchEvent(new Event("keyup"));
-
+  searchInput.dispatchEvent(new Event("keyup"));
 });
 
 filterBtn.addEventListener("change", (e) => {
+  const filterValue = e.target.value;
 
-    const filterValue = e.target.value;
-
-    filterTodos(filterValue);
-
+  filterTodos(filterValue);
 });
 
 // Local Storage
@@ -212,51 +201,47 @@ const getTodosLocalStorage = () => {
 };
 
 const loadTodos = () => {
-    const todos = getTodosLocalStorage();
+  const todos = getTodosLocalStorage();
 
-    todos.forEach((todo) => {
-        saveTodo(todo.text, todo.done, 0);
-    });
+  todos.forEach((todo) => {
+    saveTodo(todo.text, todo.done, 0);
+  });
 };
 
 const saveTodoLocalStorage = (todo) => {
+  const todos = getTodosLocalStorage();
 
-    const todos = getTodosLocalStorage();
+  todos.push(todo);
 
-    todos.push(todo);
-
-    localStorage.setItem("todos", JSON.stringify(todos));
+  localStorage.setItem("todos", JSON.stringify(todos));
 };
 
 const removeTodoLocalStorage = (todoText) => {
+  const todos = getTodosLocalStorage();
 
-    const todos = getTodosLocalStorage();
+  const filteredTodos = todos.filter((todo) => todo.text !== todoText);
 
-    const filteredTodos = todos.filter((todo) => todo.text !== todoText);
-
-    localStorage.setItem("todos", JSON.stringify(filteredTodos));
+  localStorage.setItem("todos", JSON.stringify(filteredTodos));
 };
 
 const updateTodoStatusLocalStorage = (todoText) => {
+  const todos = getTodosLocalStorage();
 
-    const todos = getTodosLocalStorage();
+  todos.map((todo) =>
+    todo.text === todoText ? (todo.done = !todo.done) : null
+  );
 
-    todos.map((todo) =>
-        todo.text === todoText ? (todo.done = !todo.done) : null
-    );
-
-    localStorage.setItem("todos", JSON.stringify(todos));
+  localStorage.setItem("todos", JSON.stringify(todos));
 };
 const updateTodoLocalStorage = (todoOldText, todoNewText) => {
+  const todos = getTodosLocalStorage();
 
-    const todos = getTodosLocalStorage();
+  todos.map((todo) =>
+    /*todo.text === todoOldText ? (todo.done = todoNewText) : null*/
+    todo.text === todoOldText ? (todo.text = todoNewText) : null
+  );
 
-    todos.map((todo) =>
-        todo.text === todoOldText ? (todo.done = todoNewText) : null
-    );
-
-    localStorage.setItem("todos", JSON.stringify(todos));
+  localStorage.setItem("todos", JSON.stringify(todos));
 };
 
 loadTodos();
-
