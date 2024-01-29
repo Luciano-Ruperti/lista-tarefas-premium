@@ -11,8 +11,6 @@ const filterBtn = document.querySelector("#filter-select");
 
 let oldInputValue;
 
-/*loadTodos();*/
-
 // Funções
 const saveTodo = (text, done = 0, save = 1) => {
   const todo = document.createElement("div");
@@ -237,7 +235,6 @@ const updateTodoLocalStorage = (todoOldText, todoNewText) => {
   const todos = getTodosLocalStorage();
 
   todos.map((todo) =>
-    /*todo.text === todoOldText ? (todo.done = todoNewText) : null*/
     todo.text === todoOldText ? (todo.text = todoNewText) : null
   );
 
